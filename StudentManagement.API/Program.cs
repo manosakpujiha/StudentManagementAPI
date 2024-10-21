@@ -6,6 +6,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
@@ -40,6 +41,18 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+app.UseRouting();  // This enables routing for your controllers
+app.UseAuthentication();  // Ensure authentication middleware is added
+app.UseAuthorization();  // Authorization middleware for API access
+
+app.MapControllers(); // This ensures that all your API controllers (like StudentsController) are mapped
+
+
+
+// app.UseEndpoints(endpoints =>
+// {
+//     endpoints.MapControllers();  // This ensures that all your API controllers (like StudentsController) are mapped
+// });
 
 var summaries = new[]
 {
