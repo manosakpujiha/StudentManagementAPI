@@ -12,10 +12,15 @@ namespace StudentManagement.Library.Services
             return students;
         }
 
-        public Student GetStudentById(int id)
+    public Student GetStudentById(int id)
+    {
+        var student = students.Find(s => s.Id == id);
+        if (student == null)
         {
-            return students.Find(s => s.Id == id);
+            throw new KeyNotFoundException($"Student with ID {id} not found.");
         }
+        return student;
+    }
 
         public void AddStudent(Student student)
         {
