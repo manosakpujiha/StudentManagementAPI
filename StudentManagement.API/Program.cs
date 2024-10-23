@@ -1,14 +1,22 @@
+using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using StudentManagement.Library.Services;
+using StudentManagement.Library.Data;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddControllers();
-builder.Services.AddSingleton<StudentService>();  // This registers StudentService as a singleton service
+builder.Services.AddDbContext<AppDbContext>(options =>
+    options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection"))); // Configure Entity Framework Core with SQLite
+
+// Register StudentService
+builder.Services.AddScoped<StudentService>();  // Switch to scoped to allow EF tracking
+// builder.Services.AddSingleton<StudentService>();  // This registers StudentService as a singleton service
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
@@ -76,6 +84,13 @@ app.MapGet("/weatherforecast", () =>
 .WithName("GetWeatherForecast")
 .WithOpenApi()
 .RequireAuthorization();  // Require JWT Authentication for this endpoint
+
+// Ensure the database is created
+using (var scope = app.Services.CreateScope())
+{
+    var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    dbContext.Database.EnsureCreated();  // This will create the SQLite database if it doesn't exist
+}
 
 app.Run();
 

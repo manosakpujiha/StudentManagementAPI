@@ -1,38 +1,80 @@
 using StudentManagement.Library.Models;
+using StudentManagement.Library.Data;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace StudentManagement.Library.Services
 {
     public class StudentService
     {
-        private List<Student> students = new List<Student>();
+        // private List<Student> students = new List<Student>();
+
+        private readonly AppDbContext _dbContext;
+
+        public StudentService(AppDbContext dbContext)
+        {
+            _dbContext = dbContext;
+        }
+
+        // public IEnumerable<Student> GetAllStudents()
+        // {
+        //     return students;
+        // }
+
 
         public IEnumerable<Student> GetAllStudents()
         {
-            return students;
+            return _dbContext.Students.ToList();  // Fetch all students from the database
         }
 
-    public Student GetStudentById(int id)
-    {
-        var student = students.Find(s => s.Id == id);
-        if (student == null)
+        // public Student GetStudentById(int id)
+        // {
+        //     var student = students.Find(s => s.Id == id);
+        //     if (student == null)
+        //     {
+        //         throw new KeyNotFoundException($"Student with ID {id} not found.");
+        //     }
+        //     return student;
+        // }
+
+
+        public Student GetStudentById(int id)
         {
-            throw new KeyNotFoundException($"Student with ID {id} not found.");
+            var student = _dbContext.Students.Find(id);
+            if (student == null)
+            {
+                throw new KeyNotFoundException($"Student with ID {id} not found.");
+            }
+            return student;
         }
-        return student;
-    }
 
-        public void AddStudent(Student student)
+        // public void AddStudent(Student student)
+        // {
+        //     students.Add(student);
+        //     Console.WriteLine($"Added student: {student.FirstName} {student.LastName} (ID: {student.Id})");
+        // }
+
+         public void AddStudent(Student student)
         {
-            students.Add(student);
-            Console.WriteLine($"Added student: {student.FirstName} {student.LastName} (ID: {student.Id})");
+            _dbContext.Students.Add(student);
+            _dbContext.SaveChanges();  // Save changes to the database
         }
 
-        public void RemoveStudent(int id)
+        // public void RemoveStudent(int id)
+        // {
+        //     var student = GetStudentById(id);
+        //     if (student != null)
+        //         students.Remove(student);
+        // }
+
+         public void RemoveStudent(int id)
         {
             var student = GetStudentById(id);
             if (student != null)
-                students.Remove(student);
+            {
+                _dbContext.Students.Remove(student);
+                _dbContext.SaveChanges();  // Persist the removal to the database
+            }
         }
     }
 }
