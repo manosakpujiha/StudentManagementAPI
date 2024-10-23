@@ -50,7 +50,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseHttpsRedirection();
+// app.UseHttpsRedirection();
 app.UseRouting();  // This enables routing for your controllers
 app.UseAuthentication();  // Ensure authentication middleware is added
 app.UseAuthorization();  // Authorization middleware for API access
