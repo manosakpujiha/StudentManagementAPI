@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Management</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        h1 {
+            text-align: center;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        #error {
+            color: red;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Student List</h1>
+    <div id="error"></div>
+    <table id="studentTable">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>First Name</th>
+                <th>Last Name</th>
+                <th>Email</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Data will be injected here -->
+        </tbody>
+    </table>
+
+    <script>
+        async function fetchStudents() {
+            try {
+                const response = await fetch('http://localhost:5091/api/Students/GetAllStudents'); 
+                if (!response.ok) {
+                    throw new Error('Failed to fetch students');
+                }
+
+                const students = await response.json();
+                const studentTableBody = document.querySelector('#studentTable tbody');
+
+                students.forEach(student => {
+                    const row = document.createElement('tr');
+
+                    const idCell = document.createElement('td');
+                    idCell.textContent = student.id;
+                    row.appendChild(idCell);
+
+                    const firstNameCell = document.createElement('td');
+                    firstNameCell.textContent = student.firstName;
+                    row.appendChild(firstNameCell);
+
+                    const lastNameCell = document.createElement('td');
+                    lastNameCell.textContent = student.lastName;
+                    row.appendChild(lastNameCell);
+
+                    const emailCell = document.createElement('td');
+                    emailCell.textContent = student.email;
+                    row.appendChild(emailCell);
+
+                    studentTableBody.appendChild(row);
+                });
+            } catch (error) {
+                document.getElementById('error').textContent = error.message;
+            }
+        }
+
+        // Fetch students when the page loads
+        window.onload = fetchStudents;
+    </script>
+
+</body>
+</html>
