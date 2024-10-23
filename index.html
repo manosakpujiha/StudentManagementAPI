@@ -25,15 +25,39 @@
         th {
             background-color: #f2f2f2;
         }
-        #error {
+        #error, #success {
             color: red;
+        }
+        #success {
+            color: green;
+        }
+        form {
+            margin-bottom: 20px;
+        }
+        input {
+            margin: 5px;
+            padding: 8px;
+        }
+        button {
+            padding: 8px;
         }
     </style>
 </head>
 <body>
 
-    <h1>Student List</h1>
+    <h1>Student Management</h1>
+
+    <!-- Add new student form -->
+    <form id="addStudentForm">
+        <input type="text" id="firstName" placeholder="First Name" required>
+        <input type="text" id="lastName" placeholder="Last Name" required>
+        <input type="email" id="email" placeholder="Email" required>
+        <button type="submit">Add Student</button>
+    </form>
+
     <div id="error"></div>
+    <div id="success"></div>
+
     <table id="studentTable">
         <thead>
             <tr>
@@ -41,6 +65,7 @@
                 <th>First Name</th>
                 <th>Last Name</th>
                 <th>Email</th>
+                <th>Actions</th>
             </tr>
         </thead>
         <tbody>
@@ -51,13 +76,14 @@
     <script>
         async function fetchStudents() {
             try {
-                const response = await fetch('http://localhost:5091/api/Students/GetAllStudents'); 
+                const response = await fetch('http://localhost:5091/api/Students/GetAllStudents'); // Adjust URL as necessary
                 if (!response.ok) {
                     throw new Error('Failed to fetch students');
                 }
 
                 const students = await response.json();
                 const studentTableBody = document.querySelector('#studentTable tbody');
+                studentTableBody.innerHTML = ''; // Clear the table
 
                 students.forEach(student => {
                     const row = document.createElement('tr');
@@ -78,6 +104,14 @@
                     emailCell.textContent = student.email;
                     row.appendChild(emailCell);
 
+                    // Delete button
+                    const actionsCell = document.createElement('td');
+                    const deleteButton = document.createElement('button');
+                    deleteButton.textContent = 'Delete';
+                    deleteButton.onclick = () => deleteStudent(student.id);
+                    actionsCell.appendChild(deleteButton);
+                    row.appendChild(actionsCell);
+
                     studentTableBody.appendChild(row);
                 });
             } catch (error) {
@@ -85,8 +119,61 @@
             }
         }
 
+        async function deleteStudent(id) {
+            try {
+                const response = await fetch(`http://localhost:5091/api/Students/RemoveStudent/${id}`, {
+                    method: 'DELETE'
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to delete student');
+                }
+
+                document.getElementById('success').textContent = 'Student deleted successfully';
+                fetchStudents(); // Refresh the table after deletion
+            } catch (error) {
+                document.getElementById('error').textContent = error.message;
+            }
+        }
+
+        async function addStudent(event) {
+            event.preventDefault(); // Prevent form submission from refreshing the page
+
+            const firstName = document.getElementById('firstName').value;
+            const lastName = document.getElementById('lastName').value;
+            const email = document.getElementById('email').value;
+
+            try {
+                const response = await fetch('http://localhost:5091/api/Students/AddStudent', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        firstName: firstName,
+                        lastName: lastName,
+                        email: email
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to add student');
+                }
+
+                document.getElementById('success').textContent = 'Student added successfully';
+                document.getElementById('error').textContent = '';
+                document.getElementById('addStudentForm').reset(); // Clear form fields
+                fetchStudents(); // Refresh the table after adding the student
+            } catch (error) {
+                document.getElementById('error').textContent = error.message;
+            }
+        }
+
         // Fetch students when the page loads
         window.onload = fetchStudents;
+
+        // Add event listener to handle the form submission for adding a new student
+        document.getElementById('addStudentForm').addEventListener('submit', addStudent);
     </script>
 
 </body>
