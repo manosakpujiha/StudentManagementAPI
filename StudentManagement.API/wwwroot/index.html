@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Management</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        h1 {
+            text-align: center;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        #error, #success {
+            color: red;
+        }
+        #success {
+            color: green;
+        }
+        form {
+            margin-bottom: 20px;
+        }
+        input {
+            margin: 5px;
+            padding: 8px;
+        }
+        button {
+            padding: 8px;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Student Management API</h1>
+
+    <div id="error"></div>
+    <div id="success"></div>
+
+    <table id="studentTable">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>First Name</th>
+                <th>Last Name</th>
+                <th>Email</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Data will be injected here -->
+        </tbody>
+    </table>
+
+    <!-- Add new student form -->
+    <form id="addStudentForm">
+        <input type="text" id="firstName" placeholder="First Name" required>
+        <input type="text" id="lastName" placeholder="Last Name" required>
+        <input type="email" id="email" placeholder="Email" required>
+        <button type="submit">Add Student</button>
+    </form>
+
+    <script>
+        async function fetchStudents() {
+            try {
+                // Change localhost URL to Azure URL
+                const response = await fetch('https://studentmanagementapptwo.azurewebsites.net/api/Students/GetAllStudents');
+                if (!response.ok) {
+                    throw new Error('Failed to fetch students');
+                }
+
+                const students = await response.json();
+                const studentTableBody = document.querySelector('#studentTable tbody');
+                studentTableBody.innerHTML = ''; // Clear the table
+
+                students.forEach(student => {
+                    const row = document.createElement('tr');
+
+                    const idCell = document.createElement('td');
+                    idCell.textContent = student.id;
+                    row.appendChild(idCell);
+
+                    const firstNameCell = document.createElement('td');
+                    firstNameCell.textContent = student.firstName;
+                    row.appendChild(firstNameCell);
+
+                    const lastNameCell = document.createElement('td');
+                    lastNameCell.textContent = student.lastName;
+                    row.appendChild(lastNameCell);
+
+                    const emailCell = document.createElement('td');
+                    emailCell.textContent = student.email;
+                    row.appendChild(emailCell);
+
+                    // Delete button
+                    const actionsCell = document.createElement('td');
+                    const deleteButton = document.createElement('button');
+                    deleteButton.textContent = 'Delete';
+                    deleteButton.onclick = () => deleteStudent(student.id);
+                    actionsCell.appendChild(deleteButton);
+                    row.appendChild(actionsCell);
+
+                    studentTableBody.appendChild(row);
+                });
+            } catch (error) {
+                document.getElementById('error').textContent = error.message;
+            }
+        }
+
+        async function deleteStudent(id) {
+            try {
+                // Change localhost URL to Azure URL
+                const response = await fetch(`https://studentmanagementapptwo.azurewebsites.net/api/Students/RemoveStudent/${id}`, {
+                    method: 'DELETE'
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to delete student');
+                }
+
+                document.getElementById('success').textContent = 'Student deleted successfully';
+                fetchStudents(); // Refresh the table after deletion
+            } catch (error) {
+                document.getElementById('error').textContent = error.message;
+            }
+        }
+
+        async function addStudent(event) {
+            event.preventDefault(); // Prevent form submission from refreshing the page
+
+            const firstName = document.getElementById('firstName').value;
+            const lastName = document.getElementById('lastName').value;
+            const email = document.getElementById('email').value;
+
+            try {
+                // Change localhost URL to Azure URL
+                const response = await fetch('https://studentmanagementapptwo.azurewebsites.net/api/Students/AddStudent', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        firstName: firstName,
+                        lastName: lastName,
+                        email: email
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to add student');
+                }
+
+                document.getElementById('success').textContent = 'Student added successfully';
+                document.getElementById('error').textContent = '';
+                document.getElementById('addStudentForm').reset(); // Clear form fields
+                fetchStudents(); // Refresh the table after adding the student
+            } catch (error) {
+                document.getElementById('error').textContent = error.message;
+            }
+        }
+
+        // Fetch students when the page loads
+        window.onload = fetchStudents;
+
+        // Add event listener to handle the form submission for adding a new student
+        document.getElementById('addStudentForm').addEventListener('submit', addStudent);
+    </script>
+
+</body>
+</html>

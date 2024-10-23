@@ -47,7 +47,13 @@
 
     <h1>Student Management</h1>
 
-   
+    <!-- Add new student form -->
+    <form id="addStudentForm">
+        <input type="text" id="firstName" placeholder="First Name" required>
+        <input type="text" id="lastName" placeholder="Last Name" required>
+        <input type="email" id="email" placeholder="Email" required>
+        <button type="submit">Add Student</button>
+    </form>
 
     <div id="error"></div>
     <div id="success"></div>
@@ -66,14 +72,6 @@
             <!-- Data will be injected here -->
         </tbody>
     </table>
-
-     <!-- Add new student form -->
-     <form id="addStudentForm">
-        <input type="text" id="firstName" placeholder="First Name" required>
-        <input type="text" id="lastName" placeholder="Last Name" required>
-        <input type="email" id="email" placeholder="Email" required>
-        <button type="submit">Add Student</button>
-    </form>
 
     <script>
         async function fetchStudents() {
@@ -95,23 +93,44 @@
                     row.appendChild(idCell);
 
                     const firstNameCell = document.createElement('td');
-                    firstNameCell.textContent = student.firstName;
+                    const firstNameInput = document.createElement('input');
+                    firstNameInput.type = 'text';
+                    firstNameInput.value = student.firstName;
+                    firstNameInput.id = `firstName-${student.id}`;
                     row.appendChild(firstNameCell);
+                    firstNameCell.appendChild(firstNameInput);
 
                     const lastNameCell = document.createElement('td');
-                    lastNameCell.textContent = student.lastName;
+                    const lastNameInput = document.createElement('input');
+                    lastNameInput.type = 'text';
+                    lastNameInput.value = student.lastName;
+                    lastNameInput.id = `lastName-${student.id}`;
                     row.appendChild(lastNameCell);
+                    lastNameCell.appendChild(lastNameInput);
 
                     const emailCell = document.createElement('td');
-                    emailCell.textContent = student.email;
+                    const emailInput = document.createElement('input');
+                    emailInput.type = 'email';
+                    emailInput.value = student.email;
+                    emailInput.id = `email-${student.id}`;
                     row.appendChild(emailCell);
+                    emailCell.appendChild(emailInput);
 
-                    // Delete button
+                    // Actions (Delete & Update buttons)
                     const actionsCell = document.createElement('td');
+                    
+                    // Delete button
                     const deleteButton = document.createElement('button');
                     deleteButton.textContent = 'Delete';
                     deleteButton.onclick = () => deleteStudent(student.id);
                     actionsCell.appendChild(deleteButton);
+
+                    // Update button
+                    const updateButton = document.createElement('button');
+                    updateButton.textContent = 'Update';
+                    updateButton.onclick = () => updateStudent(student.id);
+                    actionsCell.appendChild(updateButton);
+
                     row.appendChild(actionsCell);
 
                     studentTableBody.appendChild(row);
@@ -123,7 +142,7 @@
 
         async function deleteStudent(id) {
             try {
-                const response = await fetch(`http://localhost:5091/api/Students/RemoveStudent/${id}`, {
+                const response = await fetch(`http://localhost:5091/api/Students/${id}`, {
                     method: 'DELETE'
                 });
 
@@ -133,6 +152,35 @@
 
                 document.getElementById('success').textContent = 'Student deleted successfully';
                 fetchStudents(); // Refresh the table after deletion
+            } catch (error) {
+                document.getElementById('error').textContent = error.message;
+            }
+        }
+
+        async function updateStudent(id) {
+            const firstName = document.getElementById(`firstName-${id}`).value;
+            const lastName = document.getElementById(`lastName-${id}`).value;
+            const email = document.getElementById(`email-${id}`).value;
+
+            try {
+                const response = await fetch(`http://localhost:5091/api/Students/${id}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        firstName: firstName,
+                        lastName: lastName,
+                        email: email
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to update student');
+                }
+
+                document.getElementById('success').textContent = 'Student updated successfully';
+                fetchStudents(); // Refresh the table after update
             } catch (error) {
                 document.getElementById('error').textContent = error.message;
             }

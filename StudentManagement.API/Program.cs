@@ -71,8 +71,14 @@ app.UseAuthentication();  // Ensure authentication middleware is added
 app.UseAuthorization();  // Authorization middleware for API access
 
 app.MapControllers(); // This ensures that all your API controllers (like StudentsController) are mapped
-
-
+app.UseDefaultFiles();  // Looks for default files like index.html
+app.UseStaticFiles(); // Serves static files from the wwwroot folder
+// Map controllers (for API)
+app.UseEndpoints(endpoints =>
+{
+    endpoints.MapControllers();  
+    endpoints.MapFallbackToFile("index.html");
+});
 
 // app.UseEndpoints(endpoints =>
 // {
