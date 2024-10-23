@@ -76,5 +76,14 @@ namespace StudentManagement.Library.Services
                 _dbContext.SaveChanges();  // Persist the removal to the database
             }
         }
+
+        // public void UpdateStudent(int id, Student updatedStudent)
+        public void UpdateStudent(Student student)
+        {
+            _dbContext.Students.Update(student); // This updates the student in the DbContext
+            _dbContext.SaveChanges(); // Save changes to the database
+        }
+
+
     }
 }

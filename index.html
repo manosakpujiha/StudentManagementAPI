@@ -47,13 +47,7 @@
 
     <h1>Student Management</h1>
 
-    <!-- Add new student form -->
-    <form id="addStudentForm">
-        <input type="text" id="firstName" placeholder="First Name" required>
-        <input type="text" id="lastName" placeholder="Last Name" required>
-        <input type="email" id="email" placeholder="Email" required>
-        <button type="submit">Add Student</button>
-    </form>
+   
 
     <div id="error"></div>
     <div id="success"></div>
@@ -72,6 +66,14 @@
             <!-- Data will be injected here -->
         </tbody>
     </table>
+
+     <!-- Add new student form -->
+     <form id="addStudentForm">
+        <input type="text" id="firstName" placeholder="First Name" required>
+        <input type="text" id="lastName" placeholder="Last Name" required>
+        <input type="email" id="email" placeholder="Email" required>
+        <button type="submit">Add Student</button>
+    </form>
 
     <script>
         async function fetchStudents() {

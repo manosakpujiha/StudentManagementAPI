@@ -54,5 +54,23 @@ namespace StudentManagement.API.Controllers
             return Ok($"Student with ID {id} has been removed.");
 
         }
+
+        [HttpPut("{id}")]
+        public IActionResult UpdateStudent(int id, [FromBody] Student updatedStudent)
+        {
+            var student = _studentService.GetStudentById(id);
+            if (student == null)
+            {
+                return NotFound($"Student with ID {id} not found.");
+
+            }
+
+            student.FirstName = updatedStudent.FirstName;
+            student.LastName = updatedStudent.LastName;
+            student.Email = updatedStudent.Email;
+
+            _studentService.UpdateStudent(student); 
+            return Ok($"Student with ID {id} has been updated.");// Return the updated student
+        }
     }
 }
