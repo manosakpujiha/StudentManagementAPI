@@ -29,7 +29,7 @@ namespace StudentManagement.API.Controllers
         {
             var student = _studentService.GetStudentById(id);
             if (student == null)
-                return NotFound();
+               return NotFound($"Student with ID {id} not found.");
 
             return Ok(student);
         }
@@ -46,8 +46,13 @@ namespace StudentManagement.API.Controllers
         [Route("RemoveStudent/{id}")]
         public IActionResult RemoveStudent(int id)
         {
+            var student = _studentService.GetStudentById(id);
+            if (student == null)
+                return NotFound($"Student with ID {id} not found.");
+
             _studentService.RemoveStudent(id);
-            return Ok();
+            return Ok($"Student with ID {id} has been removed.");
+
         }
     }
 }

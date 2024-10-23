@@ -25,6 +25,7 @@ namespace StudentManagement.Library.Services
         public void AddStudent(Student student)
         {
             students.Add(student);
+            Console.WriteLine($"Added student: {student.FirstName} {student.LastName} (ID: {student.Id})");
         }
 
         public void RemoveStudent(int id)
